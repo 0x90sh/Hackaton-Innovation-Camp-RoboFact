@@ -24,13 +24,13 @@ let depthValue = document.getElementById('depthValue');
 let heightValue = document.getElementById('heightValue');
 
 const modelCosts = {
-    arm: 15000,                // Basic robotic arm
-    arm_kurze_schiene: 20000,    // Robotic arm with a short rail/guide
-    arm_lange_schiene: 25000,    // Robotic arm with a long rail/guide
-    förderband: 30000,           // Standard conveyor belt system
-    förderband_hoch: 35000,      // High-performance conveyor belt system
-    trager: 40000,              // Loader or carrier component
-    multiarm: 50000             // Advanced multi-arm robotic system
+    arm: 15000,
+    arm_kurze_schiene: 20000,  
+    arm_lange_schiene: 25000,  
+    förderband: 8000, 
+    förderband_hoch: 35000,
+    trager: 40000,
+    multiarm: 50000 
 };
 
 const loadingManager = new THREE.LoadingManager();
