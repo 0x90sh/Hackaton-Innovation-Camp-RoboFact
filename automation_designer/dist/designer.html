@@ -2,10 +2,10 @@
 <html lang="en">
 
 <head>
-    <title>MockBot</title>
+    <title>Automation Designer</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-
+    <link rel="shortcut icon" href="/img/icon.jpg" type="image/x-icon">
     <style>
         body {
             margin: 0;
@@ -112,7 +112,28 @@
             z-index: 10;
             font-size: 0.9em;
         }
-
+        #costPanel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 250px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            cursor: default;
+        }
+        #costPanelHeader {
+            cursor: move;
+            font-weight: bold;
+            margin-bottom: 8px;
+            padding: 4px;
+            background: #0970B6;
+            color: #fff;
+            border-radius: 4px;
+            text-align: center;
+        }
         /* --- Canvas --- */
         canvas {
             position: absolute;
@@ -136,12 +157,12 @@
         <div id="uiPanelHeader">Settings</div>
         <div>
             <label for="roomWidth">Width:</label>
-            <input id="roomWidth" type="range" min="200" max="2000" step="50" value="1000" />
+            <input id="roomWidth" type="range" min="200" max="2000" step="50" value="1500" />
             <span id="widthValue">1000</span>
         </div>
         <div>
             <label for="roomDepth">Depth:</label>
-            <input id="roomDepth" type="range" min="200" max="2000" step="50" value="1000" />
+            <input id="roomDepth" type="range" min="200" max="2000" step="50" value="1500" />
             <span id="depthValue">1000</span>
         </div>
         <div>
@@ -155,9 +176,9 @@
                 <option value="arm">Arm</option>
             </select>
         </div>
-        <div>
+        <div style="margin-top: 10px;display: flex;">
             <button id="exportButton">Exportieren</button>
-            <button id="importButton">Importieren</button>
+            <button style="justify-content: flex-end;margin-left: auto;" id="importButton">Importieren</button>
         </div>
     </div>
 
@@ -169,63 +190,112 @@
         <strong>g / r / s</strong>: Translate / Rotate / Scale
     </div>
 
+    <div id="costPanel">
+        <div id="costPanelHeader">Estimated costs</div>
+        <ul id="costList" style="list-style-type: none; padding-left: 5px; margin: 5px 0;"></ul>
+        <div id="totalCostContainer" style="border-top: 1px solid #ccc; padding-top: 5px;">
+            Total: <span id="totalCost">0</span> CHF
+        </div>
+    </div>
+
     <canvas></canvas>
 
-    <!-- Script: Bundle + Drag Handling -->
     <script src="bundle.js"></script>
     <script>
-        // Beispiel: Fade-out-Effekt für den Loading-Screen simulieren
+        // Fade-out Loading Screen
         window.addEventListener('load', function () {
-            setTimeout(() => {
-                document.getElementById('loading-screen').classList.add('fade-out');
-            }, 1000);
+          setTimeout(() => {
+            document.getElementById('loading-screen').classList.add('fade-out');
+          }, 1000);
         });
-
-        // Draggable logic for uiPanel
-        (function () {
-            const panel = document.getElementById("uiPanel");
-            const header = document.getElementById("uiPanelHeader");
-
-            let offsetX = 0, offsetY = 0;
-            let isDragging = false;
-
-            header.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                // Position Differenz speichern
-                offsetX = e.clientX - panel.offsetLeft;
-                offsetY = e.clientY - panel.offsetTop;
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                // Panel an neue Mausposition verschieben
-                panel.style.left = (e.clientX - offsetX) + "px";
-                panel.style.top = (e.clientY - offsetY) + "px";
-            });
-
-            document.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
-        })();
-
-        // Beispiel: Range-Value-Update
-        const roomWidth = document.getElementById('roomWidth');
-        const roomDepth = document.getElementById('roomDepth');
-        const roomHeight = document.getElementById('roomHeight');
-        const widthValue = document.getElementById('widthValue');
-        const depthValue = document.getElementById('depthValue');
-        const heightValue = document.getElementById('heightValue');
-
-        roomWidth.addEventListener('input', () => {
-            widthValue.textContent = roomWidth.value;
-        });
-        roomDepth.addEventListener('input', () => {
-            depthValue.textContent = roomDepth.value;
-        });
-        roomHeight.addEventListener('input', () => {
-            heightValue.textContent = roomHeight.value;
-        });
-    </script>
+    
+        // Prüft, ob zwei Rechtecke kollidieren
+        function isCollidingRect(r1, r2) {
+          return !(r1.right <= r2.left ||
+                   r1.left >= r2.right ||
+                   r1.bottom <= r2.top ||
+                   r1.top >= r2.bottom);
+        }
+    
+        // Gemeinsame Drag-Funktion mit Bounds- und Kollisionschecks
+        function makePanelDraggable(panelId, headerId) {
+          const panel = document.getElementById(panelId);
+          const header = document.getElementById(headerId);
+    
+          // Falls keine explizite left/top definiert sind, initialisieren wir sie
+          if (!panel.style.left || panel.style.left === "") {
+            const rect = panel.getBoundingClientRect();
+            panel.style.left = rect.left + "px";
+            panel.style.top  = rect.top + "px";
+            panel.style.right = ""; // right entfernen, um Konflikte zu vermeiden
+          }
+    
+          let lastValidX = parseFloat(panel.style.left);
+          let lastValidY = parseFloat(panel.style.top);
+          let offsetX = 0, offsetY = 0;
+          let isDragging = false;
+    
+          header.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.clientX - panel.offsetLeft;
+            offsetY = e.clientY - panel.offsetTop;
+          });
+    
+          document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            // Berechne potenzielle neue Position
+            let newLeft = e.clientX - offsetX;
+            let newTop = e.clientY - offsetY;
+    
+            // Grenzen: Panel soll innerhalb des Fensters bleiben
+            newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - panel.offsetWidth));
+            newTop  = Math.max(0, Math.min(newTop, window.innerHeight - panel.offsetHeight));
+    
+            // Erstelle ein simuliertes Rechteck für die neue Position
+            const newRect = {
+              left: newLeft,
+              top: newTop,
+              right: newLeft + panel.offsetWidth,
+              bottom: newTop + panel.offsetHeight
+            };
+    
+            // Kollisionscheck: Verhindern, dass dieses Panel das jeweils andere überlappt
+            let otherPanel = null;
+            if (panelId === "uiPanel") {
+              otherPanel = document.getElementById("costPanel");
+            } else if (panelId === "costPanel") {
+              otherPanel = document.getElementById("uiPanel");
+            }
+            if (otherPanel) {
+              const otherLeft = parseFloat(otherPanel.style.left);
+              const otherTop  = parseFloat(otherPanel.style.top);
+              const otherRect = {
+                left: otherLeft,
+                top: otherTop,
+                right: otherLeft + otherPanel.offsetWidth,
+                bottom: otherTop + otherPanel.offsetHeight
+              };
+              if (isCollidingRect(newRect, otherRect)) {
+                // Bei Kollision: Position wird nicht aktualisiert.
+                return;
+              }
+            }
+    
+            // Wenn alles passt, neue Position setzen und als gültig speichern
+            panel.style.left = newLeft + "px";
+            panel.style.top  = newTop + "px";
+            lastValidX = newLeft;
+            lastValidY = newTop;
+          });
+    
+          document.addEventListener('mouseup', () => {
+            isDragging = false;
+          });
+        }
+    
+        makePanelDraggable("uiPanel", "uiPanelHeader");
+        makePanelDraggable("costPanel", "costPanelHeader");
+     </script>
 
 </body>
 
