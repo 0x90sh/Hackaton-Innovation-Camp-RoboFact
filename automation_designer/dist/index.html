@@ -34,6 +34,7 @@
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .form-group {
@@ -56,11 +57,31 @@
             font-size: 16px;
         }
 
+        #steps {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        #steps-container {
+            display: block;
+            width: 100%;
+        }
+
         .step-group {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
+        }
+
+        .add-step-button {
+            display: flex;
+            align-items: end;
+        }
+
+        #add-step {
+            height: 35px;
+            margin-bottom: 13.5px;
         }
 
         select {
@@ -94,33 +115,71 @@
             font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
-            width: 100%;
             transition: all 0.3s;
+            height: 36px;
         }
 
         .add-btn:hover {
             background: #0056b3;
         }
 
-        textarea {
-            resize: none;
-            min-height: 80px;
-        }
+        #showChat {
+            width: 100%;
+            font-weight: bold;
 
-        .submit-btn {
-            background: #007bff;
-            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            background: #0970B6;
+            color: white;
             border: none;
-            padding: 10px 15px;
-            font-size: 18px;
+            padding: 10px;
+            font-size: 16px;
             cursor: pointer;
             border-radius: 5px;
-            width: 100%;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            height: 36px;
         }
 
-        .submit-btn:hover {
-            background: #0056b3;
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #chatTextarea {
+            height: 100px;
+            display: none;
+            /* Hidden by default */
+            resize: none;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            user-select: none;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        #chatTextarea::-webkit-scrollbar {
+            display: none;
         }
     </style>
 </head>
@@ -128,66 +187,64 @@
 <body>
 
     <div class="form-container">
-        <form action="#" method="POST">
-            <div class="title">
-                <img src="img/robofact.png">
-                <h1>Automation Designer</h1>
-            </div>
+        <div class="title">
+            <img src="img/robofact.png">
+            <h1>Automation Designer</h1>
+        </div>
 
-            <div class="form-groups">
-                <div class="form-group">
-                    <label for="room-dimensions">Raumdimensionen</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input style="width: 15%" type="number" id="room-width" name="room_width"
-                            placeholder="Breite (m)" required>
-                        <input style="width: 15%" type="number" id="room-length" name="room_length"
-                            placeholder="Länge (m)" required>
-                        <input style="width: 15%" type="number" id="room-height" name="room_height"
-                            placeholder="Höhe (m)" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="text">Zweck der Anlage</label>
-                    <input type="text" id="text" name="text" required>
-                </div>
-
-                <div id="steps">
-                    <div id="steps-container">
-                        <label for="automation-steps">Definieren Sie die Automationsschritte</label>
-                        <div class="step-group">
-                            <select name="automation_steps[]" required>
-                                <option value="laufband">Laufband</option>
-                                <option value="sortierung">Sortierung</option>
-                                <option value="schneiden">Schneiden</option>
-                                <option value="verpackung">Verpackung</option>
-                                <option value="etikettierung">Etikettierung</option>
-                                <option value="qualitätskontrolle">Qualitätskontrolle</option>
-                                <option value="montage">Montage</option>
-                                <option value="lagerung">Lagerung</option>
-                                <option value="transport">Transport</option>
-                                <option value="palettierung">Palettierung</option>
-                                <option value="wiegen">Wiegen</option>
-                                <option value="fördertechnik">Fördertechnik</option>
-                                <option value="robotik">Robotik</option>
-                                <option value="inspektion">Inspektion</option>
-                            </select>
-                            <button type="button" class="remove-btn" onclick="removeStep(this)">✖</button>
-                        </div>
-                    </div>
-
-                    <button type="button" id="add-step" class="add-btn">Schritt hinzufügen</button>
-                </div>
-
-                <div class="form-group">
-                    <label for="message">Anmerkungen</label>
-                    <textarea id="message" name="message"></textarea>
+        <div class="form-groups">
+            <div class="form-group">
+                <label for="room-dimensions">Raumdimensionen</label>
+                <div style="display: flex; gap: 10px;">
+                    <input style="width: 15%" type="number" id="room-width" name="room_width" placeholder="Breite (m)"
+                        required>
+                    <input style="width: 15%" type="number" id="room-length" name="room_length" placeholder="Länge (m)"
+                        required>
+                    <input style="width: 15%" type="number" id="room-height" name="room_height" placeholder="Höhe (m)"
+                        required>
                 </div>
             </div>
 
-            <!-- <button type="submit" class="submit-btn" href="/designer.html">Design entwerfen</button> -->
-            <a href="designer.html">Design entwerfen</a>
-        </form>
+            <div class="form-group">
+                <label for="text">Zweck der Anlage</label>
+                <input type="text" id="text" name="text" required>
+            </div>
+
+            <div id="steps">
+                <div id="steps-container">
+                    <label for="automation-steps">Definieren Sie die Automationsschritte</label>
+                    <div class="step-group">
+                        <select name="automation_steps[]" required>
+                            <option value="laufband">Laufband</option>
+                            <option value="sortierung">Sortierung</option>
+                            <option value="schneiden">Schneiden</option>
+                            <option value="verpackung">Verpackung</option>
+                            <option value="etikettierung">Etikettierung</option>
+                            <option value="qualitätskontrolle">Qualitätskontrolle</option>
+                            <option value="montage">Montage</option>
+                            <option value="lagerung">Lagerung</option>
+                            <option value="transport">Transport</option>
+                            <option value="palettierung">Palettierung</option>
+                            <option value="wiegen">Wiegen</option>
+                            <option value="fördertechnik">Fördertechnik</option>
+                            <option value="robotik">Robotik</option>
+                            <option value="inspektion">Inspektion</option>
+                        </select>
+                        <button type="button" class="remove-btn" onclick="removeStep(this)">✖</button>
+                    </div>
+                </div>
+
+                <div class="add-step-button">
+                    <button type="button" id="add-step" class="add-btn">🞧</button>
+                </div>
+            </div>
+        </div>
+
+        <textarea id="chatTextarea" readonly></textarea>
+
+        <button id="showChat" onclick="showChat()">
+            <span id="buttonText"></span>
+        </button>
     </div>
 
 </body>
@@ -222,6 +279,61 @@
     function removeStep(button) {
         button.parentElement.remove();
     }
+
+    const showChatBtn = document.getElementById('showChat');
+    const buttonText = document.getElementById('buttonText');
+    const chatTextarea = document.getElementById('chatTextarea');
+
+    function showChat() {
+        showChatBtn.disabled = true;
+        buttonText.innerText = "Loading";
+        const spinner = document.createElement("div");
+        spinner.classList.add("spinner");
+        showChatBtn.appendChild(spinner);
+        chatTextarea.style.display = 'block';
+
+        let messageLines = [];
+        let messageIndex = 0;
+        let dotCount = 0;
+
+        messageLines.push("RoboAI: " + messages[messageIndex].base);
+        chatTextarea.value = messageLines.join("\n");
+        chatTextarea.scrollTop = chatTextarea.scrollHeight;
+
+        const intervalId = setInterval(() => {
+            let currentMessage = messages[messageIndex];
+
+            if (dotCount < currentMessage.maxDots) {
+                dotCount++;
+                messageLines[messageLines.length - 1] = "RoboAI: " + currentMessage.base + ".".repeat(dotCount);
+                chatTextarea.value = messageLines.join("\n");
+                chatTextarea.scrollTop = chatTextarea.scrollHeight;
+            } else {
+                messageIndex++;
+                if (messageIndex >= messages.length) {
+                    clearInterval(intervalId);
+                    buttonText.innerText = "Chat Finished";
+                    spinner.remove();
+                } else {
+                    dotCount = 0;
+                    messageLines.push("RoboAI: " + messages[messageIndex].base);
+                    chatTextarea.value = messageLines.join("\n");
+                    chatTextarea.scrollTop = chatTextarea.scrollHeight;
+                }
+            }
+        }, 750);
+    }
+
+    const messages = [
+        { base: "Assessing scene layout", maxDots: 3 },
+        { base: "Identifying key automation components", maxDots: 2 },
+        { base: "Calculating optimal placement for efficiency", maxDots: 3 },
+        { base: "Simulating machine interactions", maxDots: 2 },
+        { base: "Integrating control system modules", maxDots: 1 },
+        { base: "Evaluating spatial coherence", maxDots: 1 },
+        { base: "Finalizing automation workflow", maxDots: 3 },
+        { base: "Done!", maxDots: 0 }
+    ];
 </script>
 
 </html>
