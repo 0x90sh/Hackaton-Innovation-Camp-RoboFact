@@ -15,13 +15,23 @@ let currentModelKey = 'arm';
 
 const loadingScreen = document.getElementById('loading-screen');
 const loadingMessage = document.getElementById('loading-message');
-let roomWidth = 1000, roomDepth = 1000, roomHeight = 200;
+let roomWidth = 1500, roomDepth = 1500, roomHeight = 400;
 let widthSlider = document.getElementById('roomWidth');
 let depthSlider = document.getElementById('roomDepth');
 let heightSlider = document.getElementById('roomHeight');
 let widthValue = document.getElementById('widthValue');
 let depthValue = document.getElementById('depthValue');
 let heightValue = document.getElementById('heightValue');
+
+const modelCosts = {
+    arm: 15000,                // Basic robotic arm
+    arm_kurze_schiene: 20000,    // Robotic arm with a short rail/guide
+    arm_lange_schiene: 25000,    // Robotic arm with a long rail/guide
+    förderband: 30000,           // Standard conveyor belt system
+    förderband_hoch: 35000,      // High-performance conveyor belt system
+    trager: 40000,              // Loader or carrier component
+    multiarm: 50000             // Advanced multi-arm robotic system
+};
 
 const loadingManager = new THREE.LoadingManager();
 loadingManager.onLoad = function () {
@@ -45,7 +55,7 @@ function init() {
 
     // GridHelper (optional)
     const gridHelper = new THREE.GridHelper(2000, 40);
-    scene.add(gridHelper);
+    //scene.add(gridHelper);
 
     // Raycaster und Pointer
     raycaster = new THREE.Raycaster();
@@ -127,6 +137,8 @@ function loadModels() {
     loadModel('arm_lange_schiene', './arm_lange_schiene.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
     loadModel('förderband', './förderband.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
     loadModel('förderband_hoch', './förderband_hoch.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('trager', './trager.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('multiarm', './multiarm.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
 }
 
 function loadModel(key, url, scale, placementOffset = new THREE.Vector3(0, 0, 0)) {
@@ -182,19 +194,23 @@ function updateModelSelect() {
         select.appendChild(option);
     });
     select.value = currentModelKey;
-}
-
-function createWalls() {
-    // Entferne alte Wände
+}function createWalls() {
+    // Remove old walls
     walls.forEach(w => scene.remove(w));
     walls = [];
 
     const textureLoader = new THREE.TextureLoader();
-    const wallTexture = textureLoader.load('/wall-texture.jpg');
-    wallTexture.wrapS = THREE.RepeatWrapping;
-    wallTexture.wrapT = THREE.RepeatWrapping;
-    wallTexture.repeat.set(roomWidth / 200, roomHeight / 200);
+    const wallTexture = textureLoader.load('/walllogo.png');
 
+    // Prevent vertical flip and set wrapping
+    wallTexture.flipY = true;
+    wallTexture.wrapS = THREE.ClampToEdgeWrapping;
+    wallTexture.wrapT = THREE.ClampToEdgeWrapping;
+    wallTexture.repeat.set(1, 1);
+    wallTexture.repeat.x = -1;
+    wallTexture.offset.x = 1;
+
+    // Create a material using the texture on the backside of the wall.
     const wallMaterial = new THREE.MeshStandardMaterial({
         map: wallTexture,
         side: THREE.BackSide
@@ -203,44 +219,83 @@ function createWalls() {
     const halfW = roomWidth / 2;
     const halfD = roomDepth / 2;
 
-    // Hintere Wand
+    // Rear Wall (at positive z) – its interior face is toward negative z.
     let wallGeometry1 = new THREE.BoxGeometry(roomWidth, roomHeight, 10);
     let wall1 = new THREE.Mesh(wallGeometry1, wallMaterial);
     wall1.position.set(0, roomHeight / 2, halfD);
     wall1.castShadow = true;
     wall1.receiveShadow = true;
+    // Inward normal for rear wall is (0, 0, -1)
+    wall1.userData.normal = new THREE.Vector3(0, 0, -1);
     scene.add(wall1);
     walls.push(wall1);
 
-    // Vordere Wand
+    // Front Wall (at negative z) – interior face toward positive z.
     let wallGeometry2 = new THREE.BoxGeometry(roomWidth, roomHeight, 10);
     let wall2 = new THREE.Mesh(wallGeometry2, wallMaterial);
     wall2.position.set(0, roomHeight / 2, -halfD);
     wall2.castShadow = true;
     wall2.receiveShadow = true;
+    wall2.userData.normal = new THREE.Vector3(0, 0, 1);
     scene.add(wall2);
     walls.push(wall2);
 
-    // Rechte Seite
+    // Right Wall (at positive x) – interior face toward negative x.
     let wallGeometry3 = new THREE.BoxGeometry(10, roomHeight, roomDepth);
     let wall3 = new THREE.Mesh(wallGeometry3, wallMaterial);
     wall3.position.set(halfW, roomHeight / 2, 0);
     wall3.castShadow = true;
     wall3.receiveShadow = true;
+    wall3.userData.normal = new THREE.Vector3(-1, 0, 0);
     scene.add(wall3);
     walls.push(wall3);
 
-    // Linke Seite
+    // Left Wall (at negative x) – interior face toward positive x.
     let wallGeometry4 = new THREE.BoxGeometry(10, roomHeight, roomDepth);
     let wall4 = new THREE.Mesh(wallGeometry4, wallMaterial);
     wall4.position.set(-halfW, roomHeight / 2, 0);
     wall4.castShadow = true;
     wall4.receiveShadow = true;
+    wall4.userData.normal = new THREE.Vector3(1, 0, 0);
     scene.add(wall4);
     walls.push(wall4);
 
     render();
 }
+
+function updateWallVisibility() {
+    // Define the center of the scene (the point the camera is looking at)
+    const center = new THREE.Vector3(0, 0, 0);
+    // Create a direction vector from the camera to the center
+    const direction = new THREE.Vector3().subVectors(center, camera.position).normalize();
+    
+    // Create a raycaster from the camera toward the center
+    const ray = new THREE.Raycaster(camera.position, direction);
+    
+    // Get intersections with the walls (set recursive to true if your walls have children)
+    const intersects = ray.intersectObjects(walls, true);
+    
+    // First, make all walls visible.
+    walls.forEach(w => w.visible = true);
+    
+    // If there's an intersection...
+    if (intersects.length > 0) {
+      // Calculate the distance from the camera to the center.
+      const distanceToCenter = camera.position.distanceTo(center);
+      // Use the first (closest) intersection if it is between the camera and the center.
+      if (intersects[0].distance < distanceToCenter) {
+        intersects[0].object.visible = false;
+      }
+    }
+  }
+  
+
+function animate() {
+    requestAnimationFrame(animate);
+    render();
+    updateWallVisibility();
+}
+
 
 function onPointerDown(event) {
     if (event.target.closest('#uiPanel')) return;
@@ -262,6 +317,7 @@ function onPointerDown(event) {
             objects = objects.filter(obj => obj !== clickedObject);
             deselectObject();
             render();
+            updateCostList(); 
         } else if (isCtrlDown) {
             if (currentModelKey && models[currentModelKey]) {
                 const objectToPlace = models[currentModelKey].clone();
@@ -271,11 +327,13 @@ function onPointerDown(event) {
                     objectToPlace.position.add(objectToPlace.userData.placementOffset);
                 }
                 objectToPlace.userData.modelKey = currentModelKey;
+                objectToPlace.userData.cost = modelCosts[currentModelKey] || 0;
                 objectToPlace.castShadow = true;
                 objectToPlace.receiveShadow = true;
                 scene.add(objectToPlace);
                 objects.push(objectToPlace);
                 render();
+                updateCostList();  // Kostenliste aktualisieren
             } else {
                 console.warn("No model selected for placement.");
             }
@@ -292,6 +350,34 @@ function onPointerDown(event) {
         deselectObject();
     }
 }
+function updateCostList() {
+    const costList = document.getElementById('costList');
+    const totalCostElem = document.getElementById('totalCost');
+    let total = 0;
+    costList.innerHTML = '';
+
+    // Create a number formatter (Swiss German formatting, change locale if needed)
+    const formatter = new Intl.NumberFormat('de-CH', {
+        style: 'decimal',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+
+    objects.forEach(obj => {
+        if (obj.userData && obj.userData.modelKey) {
+            const cost = obj.userData.cost || 0;
+            total += cost;
+            const li = document.createElement('li');
+            // Format the cost number before inserting
+            li.textContent = obj.userData.modelKey.replace(/_/g, " ") + ": " + formatter.format(cost) + " CHF";
+            costList.appendChild(li);
+        }
+    });
+    totalCostElem.textContent = formatter.format(total);
+}
+
+
+
 function exportSceneToClipboard() {
     // Alle platzierten Modelle (mit modelKey) exportieren
     const modelsArray = objects.filter(obj => obj.userData && obj.userData.modelKey).map(obj => {
@@ -322,7 +408,6 @@ function exportSceneToClipboard() {
         alert("Fehler beim Exportieren!");
     });
 }
-
 
 function importSceneFromClipboard() {
     navigator.clipboard.readText().then(text => {
@@ -406,17 +491,25 @@ function importSceneFromClipboard() {
             objectToPlace.rotation.set(item.rotation.x, item.rotation.y, item.rotation.z);
             objectToPlace.scale.set(item.scale.x, item.scale.y, item.scale.z);
             objectToPlace.userData.modelKey = item.modelKey; // Wiederherstellung des Modellschlüssels
+
+            // Recalculate and assign the cost for the imported model
+            objectToPlace.userData.cost = modelCosts[item.modelKey] || 0;
+
             objectToPlace.castShadow = true;
             objectToPlace.receiveShadow = true;
             scene.add(objectToPlace);
             objects.push(objectToPlace);
         });
         render();
+
+        // Update the cost list so that the new costs are shown
+        updateCostList();
     }).catch(err => {
         console.error("Fehler beim Auslesen der Zwischenablage:", err);
         alert("Fehler beim Importieren!");
     });
 }
+
 
 
 function selectObject(object) {
@@ -436,9 +529,7 @@ function deselectObject() {
 
 function fadeOutLoadingScreen() {
     loadingScreen.classList.add('fade-out');
-    setTimeout(() => {
-        loadingScreen.style.display = 'none';
-    }, 1000);
+    loadingScreen.style.display = 'none';
 }
 
 function onDocumentKeyDown(event) {
@@ -468,11 +559,6 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
-    render();
-}
-
-function animate() {
-    requestAnimationFrame(animate);
     render();
 }
 
