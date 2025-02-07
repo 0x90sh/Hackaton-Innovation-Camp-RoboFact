@@ -29,13 +29,15 @@ const modelCosts = {
     arm_lange_schiene: 25000,  
     förderband: 8000, 
     förderband_hoch: 35000,
-    trager: 40000,
-    multiarm: 50000 
+    trager: 30000,
+    multiarm: 45000,
+    palletierer: 30000
 };
 
 const loadingManager = new THREE.LoadingManager();
 loadingManager.onLoad = function () {
     console.log("All assets loaded!");
+    renderer.compile(scene, camera);
     fadeOutLoadingScreen();
     onAssetsLoaded();
 };
@@ -75,7 +77,7 @@ function init() {
     scene.add(skyDome);
 
     // Boden mit wiederholbarer Textur
-    const floorTexture = textureLoader.load('/floor-texture.jpg');
+    const floorTexture = textureLoader.load('/floor.jpg');
     floorTexture.wrapS = THREE.RepeatWrapping;
     floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(20, 20);
@@ -127,7 +129,6 @@ function init() {
     document.getElementById('exportButton').addEventListener('click', exportSceneToClipboard);
     document.getElementById('importButton').addEventListener('click', importSceneFromClipboard);
 
-    // Erzeuge die Wände (inkl. Texturen)
     createWalls();
 }
 
@@ -139,6 +140,9 @@ function loadModels() {
     loadModel('förderband_hoch', './förderband_hoch.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
     loadModel('trager', './trager.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
     loadModel('multiarm', './multiarm.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('table', './table.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('pallete', './pallet.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('palletierer', './paketierer.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
 }
 
 function loadModel(key, url, scale, placementOffset = new THREE.Vector3(0, 0, 0)) {

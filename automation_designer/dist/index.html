@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +15,6 @@
             height: 100vh;
             margin: 0;
         }
-
         .form-container {
             background: #fff;
             padding: 20px;
@@ -25,28 +23,23 @@
             width: 100%;
             max-width: 60dvw;
         }
-
         .title img {
             width: 15rem;
         }
-
         .form-groups {
             display: flex;
             flex-direction: column;
             gap: 1rem;
             margin-bottom: 2rem;
         }
-
         .form-group {
             margin-bottom: 15px;
         }
-
         label {
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
-
         input,
         textarea,
         select {
@@ -56,34 +49,28 @@
             border-radius: 5px;
             font-size: 16px;
         }
-
         #steps {
             display: flex;
             gap: 0.5rem;
         }
-
         #steps-container {
             display: block;
             width: 100%;
         }
-
         .step-group {
             display: flex;
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
         }
-
         .add-step-button {
             display: flex;
             align-items: end;
         }
-
         #add-step {
             height: 35px;
             margin-bottom: 13.5px;
         }
-
         select {
             width: 100%;
             padding: 10px;
@@ -91,7 +78,6 @@
             border-radius: 5px;
             font-size: 16px;
         }
-
         .remove-btn {
             background: #b62309;
             color: white;
@@ -102,11 +88,9 @@
             font-size: 14px;
             transition: all 0.3s;
         }
-
         .remove-btn:hover {
             background: darkred;
         }
-
         .add-btn {
             background: #0970B6;
             color: white;
@@ -118,20 +102,16 @@
             transition: all 0.3s;
             height: 36px;
         }
-
         .add-btn:hover {
             background: #0056b3;
         }
-
         #showChat {
             width: 100%;
             font-weight: bold;
-
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-
             background: #0970B6;
             color: white;
             border: none;
@@ -142,7 +122,6 @@
             transition: all 0.3s;
             height: 36px;
         }
-
         .spinner {
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-top: 2px solid white;
@@ -151,21 +130,13 @@
             height: 16px;
             animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
         #chatTextarea {
             height: 100px;
             display: none;
-            /* Hidden by default */
             resize: none;
             padding: 10px;
             font-family: Arial, sans-serif;
@@ -177,13 +148,9 @@
             margin-bottom: 1rem;
             font-size: 1rem;
         }
-
-        #chatTextarea::-webkit-scrollbar {
-            display: none;
-        }
+        #chatTextarea::-webkit-scrollbar { display: none; }
     </style>
 </head>
-
 <body>
 
     <div class="form-container">
@@ -196,12 +163,9 @@
             <div class="form-group">
                 <label for="room-dimensions">Raumdimensionen</label>
                 <div style="display: flex; gap: 10px;">
-                    <input style="width: 15%" type="number" id="room-width" name="room_width" placeholder="Breite (m)"
-                        required>
-                    <input style="width: 15%" type="number" id="room-length" name="room_length" placeholder="Länge (m)"
-                        required>
-                    <input style="width: 15%" type="number" id="room-height" name="room_height" placeholder="Höhe (m)"
-                        required>
+                    <input style="width: 15%" type="number" id="room-width" name="room_width" placeholder="Breite (m)" required>
+                    <input style="width: 15%" type="number" id="room-length" name="room_length" placeholder="Länge (m)" required>
+                    <input style="width: 15%" type="number" id="room-height" name="room_height" placeholder="Höhe (m)" required>
                 </div>
             </div>
 
@@ -215,20 +179,15 @@
                     <label for="automation-steps">Definieren Sie die Automationsschritte</label>
                     <div class="step-group">
                         <select name="automation_steps[]" required>
-                            <option value="laufband">Laufband</option>
                             <option value="sortierung">Sortierung</option>
                             <option value="schneiden">Schneiden</option>
                             <option value="verpackung">Verpackung</option>
                             <option value="etikettierung">Etikettierung</option>
                             <option value="qualitätskontrolle">Qualitätskontrolle</option>
-                            <option value="montage">Montage</option>
                             <option value="lagerung">Lagerung</option>
-                            <option value="transport">Transport</option>
                             <option value="palettierung">Palettierung</option>
                             <option value="wiegen">Wiegen</option>
                             <option value="fördertechnik">Fördertechnik</option>
-                            <option value="robotik">Robotik</option>
-                            <option value="inspektion">Inspektion</option>
                         </select>
                         <button type="button" class="remove-btn" onclick="removeStep(this)">✖</button>
                     </div>
@@ -243,97 +202,238 @@
         <textarea id="chatTextarea" readonly></textarea>
 
         <button id="showChat" onclick="showChat()">
-            <span id="buttonText"></span>
+            <span id="buttonText">Run RoboAI</span>
         </button>
     </div>
 
-</body>
-
-<script>
-    document.getElementById("add-step").addEventListener("click", function () {
-        let container = document.getElementById("steps-container");
-        let newStep = document.createElement("div");
-        newStep.classList.add("step-group");
-        newStep.innerHTML = `
-            <select name="automation_steps[]" required>
-                <option value="laufband">Laufband</option>
-                <option value="sortierung">Sortierung</option>
-                <option value="schneiden">Schneiden</option>
-                <option value="verpackung">Verpackung</option>
-                <option value="etikettierung">Etikettierung</option>
-                <option value="qualitätskontrolle">Qualitätskontrolle</option>
-                <option value="montage">Montage</option>
-                <option value="lagerung">Lagerung</option>
-                <option value="transport">Transport</option>
-                <option value="palettierung">Palettierung</option>
-                <option value="wiegen">Wiegen</option>
-                <option value="fördertechnik">Fördertechnik</option>
-                <option value="robotik">Robotik</option>
-                <option value="inspektion">Inspektion</option>
-            </select>
-            <button type="button" class="remove-btn" onclick="removeStep(this)">✖</button>
-        `;
-        container.appendChild(newStep);
-    });
-
-    function removeStep(button) {
-        button.parentElement.remove();
+    <script>
+        // JSON-String, der in die Zwischenablage kopiert werden soll
+        const jsonToCopy = `{
+  "room": {
+    "width": 2000,
+    "depth": 2000,
+    "height": 450
+  },
+  "models": [
+    {
+      "modelKey": "förderband",
+      "position": {
+        "x": -17,
+        "y": 3,
+        "z": -230.87575065743636
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 100,
+        "y": 100,
+        "z": 100
+      }
+    },
+    {
+      "modelKey": "förderband",
+      "position": {
+        "x": 200.0812481365677,
+        "y": 17.435642839185107,
+        "z": -232.0569267075914
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0.16945025846232153
+      },
+      "scale": {
+        "x": 100,
+        "y": 100,
+        "z": 100
+      }
+    },
+    {
+      "modelKey": "arm_kurze_schiene",
+      "position": {
+        "x": 173.0991621893101,
+        "y": 3,
+        "z": -293.0876298504086
+      },
+      "rotation": {
+        "x": 3.141592653589793,
+        "y": -0.0005686640454226736,
+        "z": 3.141592653589793
+      },
+      "scale": {
+        "x": 100,
+        "y": 100,
+        "z": 100
+      }
+    },
+    {
+      "modelKey": "förderband_hoch",
+      "position": {
+        "x": 69.0301517627554,
+        "y": 3,
+        "z": -161.87580638333225
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 100,
+        "y": 100,
+        "z": 100
+      }
+    },
+    {
+      "modelKey": "multiarm",
+      "position": {
+        "x": 463.2251842129191,
+        "y": 48.852648917597776,
+        "z": -211.2699422418616
+      },
+      "rotation": {
+        "x": 3.141592653589793,
+        "y": -1.5384105100153338,
+        "z": 3.141592653589793
+      },
+      "scale": {
+        "x": 100,
+        "y": 100,
+        "z": 100
+      }
+    },
+    {
+      "modelKey": "förderband",
+      "position": {
+        "x": -529.8555427589145,
+        "y": 3,
+        "z": -144.05093891275783
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 100,
+        "y": 100,
+        "z": 100
+      }
+    },
+    {
+      "modelKey": "paketierer",
+      "position": {
+        "x": -608.4642938115234,
+        "y": 3,
+        "z": -139.16815373120434
+      },
+      "rotation": {
+        "x": 0,
+        "y": -1.5231020475074504,
+        "z": 0
+      },
+      "scale": {
+        "x": 100,
+        "y": 100,
+        "z": 100
+      }
     }
+  ]
+}`;
 
-    const showChatBtn = document.getElementById('showChat');
-    const buttonText = document.getElementById('buttonText');
-    const chatTextarea = document.getElementById('chatTextarea');
+        document.getElementById("add-step").addEventListener("click", function () {
+            let container = document.getElementById("steps-container");
+            let newStep = document.createElement("div");
+            newStep.classList.add("step-group");
+            newStep.innerHTML = `
+                <select name="automation_steps[]" required>
+                    <option value="sortierung">Sortierung</option>
+                    <option value="schneiden">Schneiden</option>
+                    <option value="verpackung">Verpackung</option>
+                    <option value="etikettierung">Etikettierung</option>
+                    <option value="qualitätskontrolle">Qualitätskontrolle</option>
+                    <option value="lagerung">Lagerung</option>
+                    <option value="palettierung">Palettierung</option>
+                    <option value="wiegen">Wiegen</option>
+                    <option value="fördertechnik">Fördertechnik</option>
+                </select>
+                <button type="button" class="remove-btn" onclick="removeStep(this)">✖</button>
+            `;
+            container.appendChild(newStep);
+        });
 
-    function showChat() {
-        showChatBtn.disabled = true;
-        buttonText.innerText = "Loading";
-        const spinner = document.createElement("div");
-        spinner.classList.add("spinner");
-        showChatBtn.appendChild(spinner);
-        chatTextarea.style.display = 'block';
+        function removeStep(button) {
+            button.parentElement.remove();
+        }
 
-        let messageLines = [];
-        let messageIndex = 0;
-        let dotCount = 0;
+        const showChatBtn = document.getElementById('showChat');
+        const buttonText = document.getElementById('buttonText');
+        const chatTextarea = document.getElementById('chatTextarea');
 
-        messageLines.push("RoboAI: " + messages[messageIndex].base);
-        chatTextarea.value = messageLines.join("\n");
-        chatTextarea.scrollTop = chatTextarea.scrollHeight;
+        function showChat() {
+            showChatBtn.disabled = true;
+            buttonText.innerText = "Loading";
+            const spinner = document.createElement("div");
+            spinner.classList.add("spinner");
+            showChatBtn.appendChild(spinner);
+            chatTextarea.style.display = 'block';
 
-        const intervalId = setInterval(() => {
-            let currentMessage = messages[messageIndex];
+            let messageLines = [];
+            let messageIndex = 0;
+            let dotCount = 0;
 
-            if (dotCount < currentMessage.maxDots) {
-                dotCount++;
-                messageLines[messageLines.length - 1] = "RoboAI: " + currentMessage.base + ".".repeat(dotCount);
-                chatTextarea.value = messageLines.join("\n");
-                chatTextarea.scrollTop = chatTextarea.scrollHeight;
-            } else {
-                messageIndex++;
-                if (messageIndex >= messages.length) {
-                    clearInterval(intervalId);
-                    buttonText.innerText = "Chat Finished";
-                    spinner.remove();
-                } else {
-                    dotCount = 0;
-                    messageLines.push("RoboAI: " + messages[messageIndex].base);
+            messageLines.push("RoboAI: " + messages[messageIndex].base);
+            chatTextarea.value = messageLines.join("\n");
+            chatTextarea.scrollTop = chatTextarea.scrollHeight;
+
+            const intervalId = setInterval(() => {
+                let currentMessage = messages[messageIndex];
+
+                if (dotCount < currentMessage.maxDots) {
+                    dotCount++;
+                    messageLines[messageLines.length - 1] = "RoboAI: " + currentMessage.base + ".".repeat(dotCount);
                     chatTextarea.value = messageLines.join("\n");
                     chatTextarea.scrollTop = chatTextarea.scrollHeight;
+                } else {
+                    messageIndex++;
+                    if (messageIndex >= messages.length) {
+                        clearInterval(intervalId);
+                        buttonText.innerText = "View Result";
+                        spinner.remove();
+
+                        // Kopiere den JSON-String in die Zwischenablage
+                        navigator.clipboard.writeText(jsonToCopy)
+                            .then(() => console.log("JSON successfully copied to clipboard"))
+                            .catch(err => console.error("Error copying JSON: ", err));
+
+                        // Button wieder aktivieren und Klick-Event auf Weiterleitung setzen
+                        showChatBtn.disabled = false;
+                        showChatBtn.onclick = function() {
+                            window.location.href = "/designer.html";
+                        };
+                    } else {
+                        dotCount = 0;
+                        messageLines.push("RoboAI: " + messages[messageIndex].base);
+                        chatTextarea.value = messageLines.join("\n");
+                        chatTextarea.scrollTop = chatTextarea.scrollHeight;
+                    }
                 }
-            }
-        }, 750);
-    }
+            }, 750);
+        }
 
-    const messages = [
-        { base: "Assessing scene layout", maxDots: 3 },
-        { base: "Identifying key automation components", maxDots: 2 },
-        { base: "Calculating optimal placement for efficiency", maxDots: 3 },
-        { base: "Simulating machine interactions", maxDots: 2 },
-        { base: "Integrating control system modules", maxDots: 1 },
-        { base: "Evaluating spatial coherence", maxDots: 1 },
-        { base: "Finalizing automation workflow", maxDots: 3 },
-        { base: "Done!", maxDots: 0 }
-    ];
-</script>
-
+        const messages = [
+            { base: "Assessing scene layout", maxDots: 3 },
+            { base: "Identifying key automation components", maxDots: 2 },
+            { base: "Calculating optimal placement for efficiency", maxDots: 3 },
+            { base: "Simulating machine interactions", maxDots: 2 },
+            { base: "Integrating control system modules", maxDots: 1 },
+            { base: "Evaluating spatial coherence", maxDots: 1 },
+            { base: "Finalizing automation workflow", maxDots: 3 },
+            { base: "Done!", maxDots: 0 }
+        ];
+    </script>
+</body>
 </html>

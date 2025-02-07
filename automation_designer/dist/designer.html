@@ -201,14 +201,7 @@
     <canvas></canvas>
 
     <script src="bundle.js"></script>
-    <script>
-        // Fade-out Loading Screen
-        window.addEventListener('load', function () {
-          setTimeout(() => {
-            document.getElementById('loading-screen').classList.add('fade-out');
-          }, 1000);
-        });
-    
+    <script>    
         // Prüft, ob zwei Rechtecke kollidieren
         function isCollidingRect(r1, r2) {
           return !(r1.right <= r2.left ||
