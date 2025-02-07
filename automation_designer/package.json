@@ -1,0 +1,26 @@
+{
+  "name": "html",
+  "version": "1.0.0",
+  "description": "",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode production",
+    "start": "webpack serve --mode development"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "three": "^0.173.0",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.0"
+  },
+  "dependencies": {
+    "three-gltf-loader": "^1.111.0",
+    "three-orbitcontrols": "^2.110.3",
+    "three-transform-controls": "^1.0.4",
+    "three-transformcontrols": "^0.78.1"
+  }
+}
