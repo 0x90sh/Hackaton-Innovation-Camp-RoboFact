@@ -59,8 +59,6 @@
             margin-top: 20px;
             font-size: 1.2em;
         }
-
-        /* --- Draggable Overlay Panel --- */
         #uiPanel {
             position: absolute;
             top: 10px;
@@ -73,8 +71,6 @@
             z-index: 10;
             cursor: default;
         }
-
-        /* Ein extra "Kopfbereich", an dem gezogen werden kann */
         #uiPanelHeader {
             cursor: move;
             font-weight: bold;
@@ -99,8 +95,6 @@
         #uiPanel select {
             width: 140px;
         }
-
-        /* --- Info Overlay --- */
         #info {
             position: absolute;
             bottom: 10px;
@@ -134,7 +128,6 @@
             border-radius: 4px;
             text-align: center;
         }
-        /* --- Canvas --- */
         canvas {
             position: absolute;
             top: 0;
@@ -202,25 +195,22 @@
 
     <script src="bundle.js"></script>
     <script>    
-        // Prüft, ob zwei Rechtecke kollidieren
         function isCollidingRect(r1, r2) {
           return !(r1.right <= r2.left ||
                    r1.left >= r2.right ||
                    r1.bottom <= r2.top ||
                    r1.top >= r2.bottom);
         }
-    
-        // Gemeinsame Drag-Funktion mit Bounds- und Kollisionschecks
+
         function makePanelDraggable(panelId, headerId) {
           const panel = document.getElementById(panelId);
           const header = document.getElementById(headerId);
     
-          // Falls keine explizite left/top definiert sind, initialisieren wir sie
           if (!panel.style.left || panel.style.left === "") {
             const rect = panel.getBoundingClientRect();
             panel.style.left = rect.left + "px";
             panel.style.top  = rect.top + "px";
-            panel.style.right = ""; // right entfernen, um Konflikte zu vermeiden
+            panel.style.right = "";
           }
     
           let lastValidX = parseFloat(panel.style.left);
@@ -236,15 +226,12 @@
     
           document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            // Berechne potenzielle neue Position
             let newLeft = e.clientX - offsetX;
             let newTop = e.clientY - offsetY;
     
-            // Grenzen: Panel soll innerhalb des Fensters bleiben
             newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - panel.offsetWidth));
             newTop  = Math.max(0, Math.min(newTop, window.innerHeight - panel.offsetHeight));
     
-            // Erstelle ein simuliertes Rechteck für die neue Position
             const newRect = {
               left: newLeft,
               top: newTop,
@@ -252,7 +239,6 @@
               bottom: newTop + panel.offsetHeight
             };
     
-            // Kollisionscheck: Verhindern, dass dieses Panel das jeweils andere überlappt
             let otherPanel = null;
             if (panelId === "uiPanel") {
               otherPanel = document.getElementById("costPanel");
@@ -269,12 +255,10 @@
                 bottom: otherTop + otherPanel.offsetHeight
               };
               if (isCollidingRect(newRect, otherRect)) {
-                // Bei Kollision: Position wird nicht aktualisiert.
                 return;
               }
             }
     
-            // Wenn alles passt, neue Position setzen und als gültig speichern
             panel.style.left = newLeft + "px";
             panel.style.top  = newTop + "px";
             lastValidX = newLeft;

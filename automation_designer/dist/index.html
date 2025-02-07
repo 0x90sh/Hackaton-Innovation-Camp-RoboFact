@@ -207,7 +207,6 @@
     </div>
 
     <script>
-        // JSON-String, der in die Zwischenablage kopiert werden soll
         const jsonToCopy = `{
   "room": {
     "width": 2000,
@@ -404,12 +403,10 @@
                         buttonText.innerText = "View Result";
                         spinner.remove();
 
-                        // Kopiere den JSON-String in die Zwischenablage
                         navigator.clipboard.writeText(jsonToCopy)
                             .then(() => console.log("JSON successfully copied to clipboard"))
                             .catch(err => console.error("Error copying JSON: ", err));
 
-                        // Button wieder aktivieren und Klick-Event auf Weiterleitung setzen
                         showChatBtn.disabled = false;
                         showChatBtn.onclick = function() {
                             window.location.href = "/designer.html";

@@ -25,9 +25,9 @@ let heightValue = document.getElementById('heightValue');
 
 const modelCosts = {
     arm: 15000,
-    arm_kurze_schiene: 20000,  
-    arm_lange_schiene: 25000,  
-    förderband: 8000, 
+    arm_kurze_schiene: 20000,
+    arm_lange_schiene: 25000,
+    förderband: 8000,
     förderband_hoch: 35000,
     trager: 30000,
     multiarm: 45000,
@@ -43,41 +43,33 @@ loadingManager.onLoad = function () {
 };
 
 init();
-loadModels(); // Lädt alle Modelle
+loadModels();
 
 function init() {
-    // Kamera
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
     camera.position.set(700, 900, 1000);
     camera.lookAt(0, 0, 0);
 
-    // Szene
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf0f0f0);
 
-    // GridHelper (optional)
-    const gridHelper = new THREE.GridHelper(2000, 40);
-    //scene.add(gridHelper);
-
-    // Raycaster und Pointer
     raycaster = new THREE.Raycaster();
     pointer = new THREE.Vector2();
 
-    // Texturen laden
     const textureLoader = new THREE.TextureLoader();
 
-    // Himmelskugel (SkyDome)
-    const skyTexture = textureLoader.load('/sky_texture.jpg');
+    // SkyDome
+    const skyTexture = textureLoader.load('/img/sky_texture.jpg');
     const skyGeometry = new THREE.SphereGeometry(2000, 32, 32);
-    const skyMaterial = new THREE.MeshBasicMaterial({ 
-        map: skyTexture, 
-        side: THREE.BackSide  // Textur von innen sichtbar
+    const skyMaterial = new THREE.MeshBasicMaterial({
+        map: skyTexture,
+        side: THREE.BackSide // Texture visible from inside
     });
     const skyDome = new THREE.Mesh(skyGeometry, skyMaterial);
     scene.add(skyDome);
 
-    // Boden mit wiederholbarer Textur
-    const floorTexture = textureLoader.load('/floor.jpg');
+    // Floor with repeating texture
+    const floorTexture = textureLoader.load('/img/floor.jpg');
     floorTexture.wrapS = THREE.RepeatWrapping;
     floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(20, 20);
@@ -89,7 +81,7 @@ function init() {
     scene.add(plane);
     objects.push(plane);
 
-    // Beleuchtung
+    // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
     const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
@@ -108,7 +100,6 @@ function init() {
     dirLight.shadow.camera.bottom = -2000;
     scene.add(dirLight);
 
-    // Renderer
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -116,12 +107,10 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // OrbitControls
     controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 0, 0);
     controls.update();
 
-    // Eventlistener für Raumanpassung
     widthSlider.addEventListener("input", updateRoom);
     depthSlider.addEventListener("input", updateRoom);
     heightSlider.addEventListener("input", updateRoom);
@@ -133,16 +122,16 @@ function init() {
 }
 
 function loadModels() {
-    loadModel('arm', './arm.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
-    loadModel('arm_kurze_schiene', './arm_kurze_schiene.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
-    loadModel('arm_lange_schiene', './arm_lange_schiene.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
-    loadModel('förderband', './förderband.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
-    loadModel('förderband_hoch', './förderband_hoch.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
-    loadModel('trager', './trager.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
-    loadModel('multiarm', './multiarm.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
-    loadModel('table', './table.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
-    loadModel('pallete', './pallet.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
-    loadModel('palletierer', './paketierer.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('arm', './models/arm.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('arm_kurze_schiene', './models/arm_kurze_schiene.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('arm_lange_schiene', './models/arm_lange_schiene.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('förderband', './models/förderband.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('förderband_hoch', './models/förderband_hoch.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('trager', './models/trager.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('multiarm', './models/multiarm.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('table', './models/table.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('pallete', './models/pallet.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
+    loadModel('palletierer', './models/paketierer.glb', new THREE.Vector3(100, 100, 100), new THREE.Vector3(8, -22, 0));
 }
 
 function loadModel(key, url, scale, placementOffset = new THREE.Vector3(0, 0, 0)) {
@@ -178,7 +167,6 @@ function onAssetsLoaded() {
         document.addEventListener('keyup', onDocumentKeyUp);
         window.addEventListener('resize', onWindowResize);
 
-        // Dynamisch die Modelle im Select-Element aktualisieren
         updateModelSelect();
         document.getElementById('modelSelect').addEventListener('change', (e) => {
             currentModelKey = e.target.value;
@@ -190,7 +178,7 @@ function onAssetsLoaded() {
 
 function updateModelSelect() {
     const select = document.getElementById('modelSelect');
-    select.innerHTML = ""; // Alte Optionen entfernen
+    select.innerHTML = "";
     Object.keys(models).forEach(key => {
         const option = document.createElement('option');
         option.value = key;
@@ -198,15 +186,15 @@ function updateModelSelect() {
         select.appendChild(option);
     });
     select.value = currentModelKey;
-}function createWalls() {
-    // Remove old walls
+}
+
+function createWalls() {
     walls.forEach(w => scene.remove(w));
     walls = [];
 
     const textureLoader = new THREE.TextureLoader();
-    const wallTexture = textureLoader.load('/walllogo.png');
+    const wallTexture = textureLoader.load('/img/walllogo.png');
 
-    // Prevent vertical flip and set wrapping
     wallTexture.flipY = true;
     wallTexture.wrapS = THREE.ClampToEdgeWrapping;
     wallTexture.wrapT = THREE.ClampToEdgeWrapping;
@@ -214,7 +202,7 @@ function updateModelSelect() {
     wallTexture.repeat.x = -1;
     wallTexture.offset.x = 1;
 
-    // Create a material using the texture on the backside of the wall.
+    // Using texture on the backside for inward facing walls
     const wallMaterial = new THREE.MeshStandardMaterial({
         map: wallTexture,
         side: THREE.BackSide
@@ -223,44 +211,43 @@ function updateModelSelect() {
     const halfW = roomWidth / 2;
     const halfD = roomDepth / 2;
 
-    // Rear Wall (at positive z) – its interior face is toward negative z.
+    // Rear Wall (positive z)
     let wallGeometry1 = new THREE.BoxGeometry(roomWidth, roomHeight, 10);
     let wall1 = new THREE.Mesh(wallGeometry1, wallMaterial);
     wall1.position.set(0, roomHeight / 2, halfD);
     wall1.castShadow = true;
     wall1.receiveShadow = true;
-    // Inward normal for rear wall is (0, 0, -1)
-    wall1.userData.normal = new THREE.Vector3(0, 0, -1);
+    wall1.userData.normal = new THREE.Vector3(0, 0, -1); // Inward normal
     scene.add(wall1);
     walls.push(wall1);
 
-    // Front Wall (at negative z) – interior face toward positive z.
+    // Front Wall (negative z)
     let wallGeometry2 = new THREE.BoxGeometry(roomWidth, roomHeight, 10);
     let wall2 = new THREE.Mesh(wallGeometry2, wallMaterial);
     wall2.position.set(0, roomHeight / 2, -halfD);
     wall2.castShadow = true;
     wall2.receiveShadow = true;
-    wall2.userData.normal = new THREE.Vector3(0, 0, 1);
+    wall2.userData.normal = new THREE.Vector3(0, 0, 1); // Inward normal
     scene.add(wall2);
     walls.push(wall2);
 
-    // Right Wall (at positive x) – interior face toward negative x.
+    // Right Wall (positive x)
     let wallGeometry3 = new THREE.BoxGeometry(10, roomHeight, roomDepth);
     let wall3 = new THREE.Mesh(wallGeometry3, wallMaterial);
     wall3.position.set(halfW, roomHeight / 2, 0);
     wall3.castShadow = true;
     wall3.receiveShadow = true;
-    wall3.userData.normal = new THREE.Vector3(-1, 0, 0);
+    wall3.userData.normal = new THREE.Vector3(-1, 0, 0); // Inward normal
     scene.add(wall3);
     walls.push(wall3);
 
-    // Left Wall (at negative x) – interior face toward positive x.
+    // Left Wall (negative x)
     let wallGeometry4 = new THREE.BoxGeometry(10, roomHeight, roomDepth);
     let wall4 = new THREE.Mesh(wallGeometry4, wallMaterial);
     wall4.position.set(-halfW, roomHeight / 2, 0);
     wall4.castShadow = true;
     wall4.receiveShadow = true;
-    wall4.userData.normal = new THREE.Vector3(1, 0, 0);
+    wall4.userData.normal = new THREE.Vector3(1, 0, 0); // Inward normal
     scene.add(wall4);
     walls.push(wall4);
 
@@ -268,31 +255,20 @@ function updateModelSelect() {
 }
 
 function updateWallVisibility() {
-    // Define the center of the scene (the point the camera is looking at)
     const center = new THREE.Vector3(0, 0, 0);
-    // Create a direction vector from the camera to the center
     const direction = new THREE.Vector3().subVectors(center, camera.position).normalize();
-    
-    // Create a raycaster from the camera toward the center
     const ray = new THREE.Raycaster(camera.position, direction);
-    
-    // Get intersections with the walls (set recursive to true if your walls have children)
     const intersects = ray.intersectObjects(walls, true);
-    
-    // First, make all walls visible.
+
     walls.forEach(w => w.visible = true);
-    
-    // If there's an intersection...
+
     if (intersects.length > 0) {
-      // Calculate the distance from the camera to the center.
-      const distanceToCenter = camera.position.distanceTo(center);
-      // Use the first (closest) intersection if it is between the camera and the center.
-      if (intersects[0].distance < distanceToCenter) {
-        intersects[0].object.visible = false;
-      }
+        const distanceToCenter = camera.position.distanceTo(center);
+        if (intersects[0].distance < distanceToCenter) {
+            intersects[0].object.visible = false;
+        }
     }
-  }
-  
+}
 
 function animate() {
     requestAnimationFrame(animate);
@@ -300,18 +276,19 @@ function animate() {
     updateWallVisibility();
 }
 
-
 function onPointerDown(event) {
     if (event.target.closest('#uiPanel')) return;
     event.preventDefault();
     pointer.set((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
     raycaster.setFromCamera(pointer, camera);
     const intersects = raycaster.intersectObjects(objects, true);
+
     if (intersects.length > 0) {
         let clickedObject = intersects[0].object;
         while (clickedObject.parent && clickedObject.parent !== scene) {
             clickedObject = clickedObject.parent;
         }
+
         if (isShiftDown) {
             if (clickedObject === plane || walls.includes(clickedObject)) {
                 console.warn("Cannot delete the floor or walls.");
@@ -321,7 +298,7 @@ function onPointerDown(event) {
             objects = objects.filter(obj => obj !== clickedObject);
             deselectObject();
             render();
-            updateCostList(); 
+            updateCostList();
         } else if (isCtrlDown) {
             if (currentModelKey && models[currentModelKey]) {
                 const objectToPlace = models[currentModelKey].clone();
@@ -337,7 +314,7 @@ function onPointerDown(event) {
                 scene.add(objectToPlace);
                 objects.push(objectToPlace);
                 render();
-                updateCostList();  // Kostenliste aktualisieren
+                updateCostList();
             } else {
                 console.warn("No model selected for placement.");
             }
@@ -354,13 +331,14 @@ function onPointerDown(event) {
         deselectObject();
     }
 }
+
 function updateCostList() {
     const costList = document.getElementById('costList');
     const totalCostElem = document.getElementById('totalCost');
     let total = 0;
     costList.innerHTML = '';
 
-    // Create a number formatter (Swiss German formatting, change locale if needed)
+    // Swiss German formatting for numbers
     const formatter = new Intl.NumberFormat('de-CH', {
         style: 'decimal',
         minimumFractionDigits: 0,
@@ -372,7 +350,6 @@ function updateCostList() {
             const cost = obj.userData.cost || 0;
             total += cost;
             const li = document.createElement('li');
-            // Format the cost number before inserting
             li.textContent = obj.userData.modelKey.replace(/_/g, " ") + ": " + formatter.format(cost) + " CHF";
             costList.appendChild(li);
         }
@@ -380,20 +357,16 @@ function updateCostList() {
     totalCostElem.textContent = formatter.format(total);
 }
 
-
-
 function exportSceneToClipboard() {
-    // Alle platzierten Modelle (mit modelKey) exportieren
     const modelsArray = objects.filter(obj => obj.userData && obj.userData.modelKey).map(obj => {
         return {
             modelKey: obj.userData.modelKey,
             position: { x: obj.position.x, y: obj.position.y, z: obj.position.z },
             rotation: { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z },
-            scale:    { x: obj.scale.x,    y: obj.scale.y,    z: obj.scale.z }
+            scale: { x: obj.scale.x, y: obj.scale.y, z: obj.scale.z }
         };
     });
 
-    // Exportobjekt mit Raumdaten und Modellen
     const exportData = {
         room: {
             width: roomWidth,
@@ -406,10 +379,10 @@ function exportSceneToClipboard() {
     const jsonStr = JSON.stringify(exportData, null, 2);
 
     navigator.clipboard.writeText(jsonStr).then(() => {
-        console.log("Scene (inkl. Raumdaten) exported to clipboard.");
+        console.log("Scene (including room data) exported to clipboard.");
     }).catch(err => {
-        console.error("Fehler beim Kopieren in die Zwischenablage:", err);
-        alert("Fehler beim Exportieren!");
+        console.error("Error copying to clipboard:", err);
+        alert("Export error!");
     });
 }
 
@@ -419,23 +392,21 @@ function importSceneFromClipboard() {
         try {
             importData = JSON.parse(text);
         } catch (e) {
-            alert("Zwischenablage enthält kein gültiges JSON!");
+            alert("Clipboard does not contain valid JSON!");
             return;
         }
 
         let modelsData = [];
 
-        // Prüfe, ob es sich um ein Objekt mit room- und models-Properties handelt
         if (typeof importData === "object" && !Array.isArray(importData)) {
             if (importData.room && typeof importData.room === "object") {
-                // Raumdaten übernehmen und UI aktualisieren
                 if (typeof importData.room.width === "number" &&
                     typeof importData.room.depth === "number" &&
                     typeof importData.room.height === "number") {
                     roomWidth = importData.room.width;
                     roomDepth = importData.room.depth;
                     roomHeight = importData.room.height;
-                    // Optional: Slider und Textanzeigen aktualisieren
+
                     widthSlider.value = roomWidth;
                     depthSlider.value = roomDepth;
                     heightSlider.value = roomHeight;
@@ -444,31 +415,28 @@ function importSceneFromClipboard() {
                     heightValue.textContent = roomHeight;
                     createWalls();
                 } else {
-                    alert("Ungültige Raumdaten!");
+                    alert("Invalid room data!");
                     return;
                 }
             }
             if (importData.models && Array.isArray(importData.models)) {
                 modelsData = importData.models;
             } else {
-                alert("Es fehlt der 'models'-Array im Import!");
+                alert("Missing 'models' array in import!");
                 return;
             }
         } else if (Array.isArray(importData)) {
-            // Falls direkt ein Array vorliegt (Legacy-Fall)
-            modelsData = importData;
+            modelsData = importData; // Legacy import for direct array
         } else {
-            alert("Ungültiges Importformat!");
+            alert("Invalid import format!");
             return;
         }
 
-        // Entferne alle existierenden platzierten Modelle (mit modelKey)
         objects.filter(obj => obj.userData && obj.userData.modelKey).forEach(obj => {
             scene.remove(obj);
         });
         objects = objects.filter(obj => !(obj.userData && obj.userData.modelKey));
 
-        // Importiere die Modelle
         modelsData.forEach(item => {
             if (typeof item.modelKey !== "string" ||
                 typeof item.position !== "object" ||
@@ -483,20 +451,19 @@ function importSceneFromClipboard() {
                 typeof item.scale.x !== "number" ||
                 typeof item.scale.y !== "number" ||
                 typeof item.scale.z !== "number") {
-                console.warn("Überspringe ungültiges Element:", item);
+                console.warn("Skipping invalid element:", item);
                 return;
             }
             if (!models[item.modelKey]) {
-                console.warn(`Modell "${item.modelKey}" nicht gefunden. Überspringe Element.`);
+                console.warn(`Model "${item.modelKey}" not found. Skipping element.`);
                 return;
             }
             const objectToPlace = models[item.modelKey].clone();
             objectToPlace.position.set(item.position.x, item.position.y, item.position.z);
             objectToPlace.rotation.set(item.rotation.x, item.rotation.y, item.rotation.z);
             objectToPlace.scale.set(item.scale.x, item.scale.y, item.scale.z);
-            objectToPlace.userData.modelKey = item.modelKey; // Wiederherstellung des Modellschlüssels
+            objectToPlace.userData.modelKey = item.modelKey;
 
-            // Recalculate and assign the cost for the imported model
             objectToPlace.userData.cost = modelCosts[item.modelKey] || 0;
 
             objectToPlace.castShadow = true;
@@ -505,16 +472,12 @@ function importSceneFromClipboard() {
             objects.push(objectToPlace);
         });
         render();
-
-        // Update the cost list so that the new costs are shown
         updateCostList();
     }).catch(err => {
-        console.error("Fehler beim Auslesen der Zwischenablage:", err);
-        alert("Fehler beim Importieren!");
+        console.error("Error reading clipboard:", err);
+        alert("Import error!");
     });
 }
-
-
 
 function selectObject(object) {
     deselectObject();
