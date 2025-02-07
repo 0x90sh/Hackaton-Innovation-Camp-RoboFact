@@ -1,6 +1,4 @@
-# Three.js Project
-
-This project is a Three.js based application. It uses Webpack to bundle and optimize the code for both development and production environments.
+# RoboFact Challenge - Innovation Camp
 
 ## Table of Contents
 
