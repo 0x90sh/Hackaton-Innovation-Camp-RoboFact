@@ -40,8 +40,6 @@ Before you begin, ensure you have the following installed:
     npm install
     ```
 
-    Download model from https://starux.ch/default_arm.glb -> automation_designer/dist/default_arm.glb
-
     This command will install all the necessary packages listed in the `package.json` file.
 
 ## Build Instructions
