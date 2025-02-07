@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
 let camera, scene, renderer, controls, transformControls;
 let plane, raycaster, pointer;
@@ -80,6 +81,12 @@ function init() {
 
 function loadArmModel() {
     const loader = new GLTFLoader(loadingManager);
+    
+    // Add DRACO Loader
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+    loader.setDRACOLoader(dracoLoader);
+
     loader.load('./default_arm.glb', (gltf) => {
         armModel = gltf.scene;
         armModel.scale.set(100, 100, 100);
@@ -90,7 +97,7 @@ function loadArmModel() {
 
         console.log("Arm model loaded successfully:", armModel);
     },
-    (xhr) => console.log("Loading Arm Model: ${Math.round(xhr.loaded / xhr.total * 100)}%"),
+    (xhr) => console.log(`Loading Arm Model: ${Math.round(xhr.loaded / xhr.total * 100)}%`),
     (error) => console.error('Error loading GLTF model:', error));
 }
 
