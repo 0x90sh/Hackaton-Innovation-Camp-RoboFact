@@ -1,0 +1,74 @@
+[
+    {
+      "modelKey": "arm",
+      "position": {
+        "x": 83,
+        "y": 3,
+        "z": 75
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 100,
+        "y": 100,
+        "z": 100
+      }
+    },
+    {
+      "modelKey": "arm",
+      "position": {
+        "x": 233,
+        "y": 3,
+        "z": -225
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 100,
+        "y": 100,
+        "z": 100
+      }
+    },
+    {
+      "modelKey": "arm",
+      "position": {
+        "x": -67,
+        "y": 3,
+        "z": 75
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 100,
+        "y": 100,
+        "z": 100
+      }
+    },
+    {
+      "modelKey": "arm_kurze_schiene",
+      "position": {
+        "x": -267,
+        "y": 3,
+        "z": 225
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "scale": {
+        "x": 100,
+        "y": 100,
+        "z": 100
+      }
+    }
+  ]
