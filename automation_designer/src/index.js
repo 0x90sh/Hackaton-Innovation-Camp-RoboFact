@@ -20,12 +20,15 @@ let widthValue = document.getElementById('widthValue');
 let depthValue = document.getElementById('depthValue');
 let heightValue = document.getElementById('heightValue');
 
+// let objectsData;
+
 const loadingManager = new THREE.LoadingManager();
 
 loadingManager.onLoad = function () {
     console.log("All assets loaded!");
     fadeOutLoadingScreen();
     onAssetsLoaded();
+    loadObjectsFromJSON();
 };
 
 init();
@@ -79,9 +82,40 @@ function init() {
     createWalls();
 }
 
+async function loadObjectsFromJSON() {
+    try {
+        const response = await fetch('data.json');
+        const objectsData = await response.json();
+
+        objectsData.objects.forEach(object => {
+            let objectToRender;
+
+            if (object.type === "arm") {
+                objectToRender = armModel.clone();
+            }
+            else if (object.type === "conveyor_belt") {
+                // conveyor_belt
+            }
+
+            if (objectToRender) {
+                objectToRender.position.set(object.position.x, 0, object.position.z);
+                objectToRender.position.multiplyScalar(50).addScalar(25);
+                objectToRender.position.y += -22;
+                objectToRender.rotation.set(object.rotation?.x || 0, object.rotation?.y || 0, object.rotation?.z || 0);
+                scene.add(objectToRender);
+                objects.push(objectToRender); // Add to object list
+            }
+        });
+
+        render(); // Refresh the scene
+    } catch (error) {
+        console.error("Error loading JSON:", error);
+    }
+}
+
 function loadArmModel() {
     const loader = new GLTFLoader(loadingManager);
-    
+
     // Add DRACO Loader
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
@@ -97,8 +131,8 @@ function loadArmModel() {
 
         console.log("Arm model loaded successfully:", armModel);
     },
-    (xhr) => console.log(`Loading Arm Model: ${Math.round(xhr.loaded / xhr.total * 100)}%`),
-    (error) => console.error('Error loading GLTF model:', error));
+        (xhr) => console.log(`Loading Arm Model: ${Math.round(xhr.loaded / xhr.total * 100)}%`),
+        (error) => console.error('Error loading GLTF model:', error));
 }
 
 
@@ -197,7 +231,7 @@ function onPointerDown(event) {
             scene.add(objectToPlace);
             objects.push(objectToPlace);
             render();
-        } else if (isAltDown){
+        } else if (isAltDown) {
             if (!walls.includes(clickedObject) && clickedObject !== plane) {
                 selectObject(clickedObject);
             } else {
