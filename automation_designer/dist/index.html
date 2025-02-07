@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>MockBot</title>
     <meta charset="utf-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
     <style>
         body {
@@ -47,8 +47,13 @@
         }
 
         @keyframes spin {
-            0%   { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         #loading-message {
@@ -67,12 +72,14 @@
             border-radius: 6px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             z-index: 10;
-            cursor: default; /* Cursor default im Panel */
+            cursor: default;
+            /* Cursor default im Panel */
         }
 
         /* Ein extra "Kopfbereich", an dem gezogen werden kann */
         #uiPanelHeader {
-            cursor: move; /* Hier wird der Mauszeiger zur "Move"-Hand */
+            cursor: move;
+            /* Hier wird der Mauszeiger zur "Move"-Hand */
             font-weight: bold;
             margin-bottom: 8px;
             padding: 4px;
@@ -103,7 +110,7 @@
             background: rgba(255, 255, 255, 0.8);
             padding: 5px 10px;
             border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             z-index: 10;
             font-size: 0.9em;
         }
@@ -166,14 +173,14 @@
     <script src="bundle.js"></script>
     <script>
         // Beispiel: Fade-out-Effekt für den Loading-Screen simulieren
-        window.addEventListener('load', function() {
+        window.addEventListener('load', function () {
             setTimeout(() => {
                 document.getElementById('loading-screen').classList.add('fade-out');
             }, 1000);
         });
 
         // Draggable logic for uiPanel
-        (function() {
+        (function () {
             const panel = document.getElementById("uiPanel");
             const header = document.getElementById("uiPanelHeader");
 
@@ -219,4 +226,5 @@
     </script>
 
 </body>
+
 </html>
