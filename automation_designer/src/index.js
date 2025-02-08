@@ -31,7 +31,8 @@ const modelCosts = {
     förderband_hoch: 35000,
     trager: 30000,
     multiarm: 45000,
-    palletierer: 30000
+    palletierer: 30000,
+    pallette: 80
 };
 
 const loadingManager = new THREE.LoadingManager();

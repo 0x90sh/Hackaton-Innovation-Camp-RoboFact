@@ -6,6 +6,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="shortcut icon" href="/img/icon.jpg" type="image/x-icon">
+    <!-- Chart.js importieren -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         body {
             margin: 0;
@@ -13,7 +16,7 @@
             background-color: #f0f0f0;
             font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        /* Loading Screen */
         #loading-screen {
             position: absolute;
             top: 0;
@@ -30,12 +33,10 @@
             transition: opacity 0.6s ease-out;
             z-index: 1000;
         }
-
         #loading-screen.fade-out {
             opacity: 0;
             pointer-events: none;
         }
-
         .loader {
             border: 8px solid rgba(255, 255, 255, 0.2);
             border-top: 8px solid #00aaff;
@@ -44,21 +45,24 @@
             height: 80px;
             animation: spin 1.2s linear infinite;
         }
-
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
         #loading-message {
             margin-top: 20px;
             font-size: 1.2em;
         }
+
+        /* Nur der Canvas für die Szene ist absolut positioniert. */
+        #sceneCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* Panel-Einstellungen */
         #uiPanel {
             position: absolute;
             top: 10px;
@@ -81,20 +85,58 @@
             border-radius: 4px;
             text-align: center;
         }
-
         #uiPanel label {
             display: inline-block;
             width: 60px;
             margin-right: 5px;
         }
-
         #uiPanel input[type=range] {
             width: 130px;
         }
-
         #uiPanel select {
             width: 140px;
         }
+
+        /* Sidebar Container rechts, mit Abstand vom Rand */
+        #sidebarContainer {
+            position: absolute; /* statt fixed */
+            top: 10px;
+            right: 30px;   /* Abstand zum rechten Fensterrand */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10;
+            width: 250px;
+        }
+
+        /* Gleicher Stil für alle Panel in der Sidebar */
+        .sidebarPanel {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+        }
+        .sidebarPanelHeader {
+            font-weight: bold;
+            margin-bottom: 8px;
+            padding: 4px;
+            background: #0970B6;
+            color: #fff;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* Damit die Kostenliste wachsen kann, ohne Layout zu sprengen */
+        #costList {
+            list-style-type: none;
+            padding-left: 5px;
+            margin: 5px 0;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        /* Info-Panel */
         #info {
             position: absolute;
             bottom: 10px;
@@ -106,46 +148,38 @@
             z-index: 10;
             font-size: 0.9em;
         }
-        #costPanel {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 250px;
-            background: rgba(255, 255, 255, 0.85);
-            padding: 10px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            z-index: 10;
-            cursor: default;
+
+        /* Chart-Container für Emissions */
+        #emissionsChartContainer {
+            width: 100%;
+            height: 200px;
+            position: relative;
         }
-        #costPanelHeader {
-            cursor: move;
-            font-weight: bold;
-            margin-bottom: 8px;
-            padding: 4px;
-            background: #0970B6;
-            color: #fff;
-            border-radius: 4px;
-            text-align: center;
+        #emissionsChart {
+            width: 100% !important;
+            height: 100% !important;
         }
-        canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
+
+        /* Chart-Container für Efficiency */
+        #efficiencyChartContainer {
+            width: 100%;
+            height: 200px;
+            position: relative;
+        }
+        #efficiencyChart {
+            width: 100% !important;
+            height: 100% !important;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- Loading Screen -->
     <div id="loading-screen">
         <div class="loader"></div>
         <div id="loading-message">Loading assets...</div>
     </div>
 
-    <!-- Draggable Panel -->
     <div id="uiPanel">
         <div id="uiPanelHeader">Settings</div>
         <div>
@@ -170,12 +204,11 @@
             </select>
         </div>
         <div style="margin-top: 10px;display: flex;">
-            <button id="exportButton">Exportieren</button>
-            <button style="justify-content: flex-end;margin-left: auto;" id="importButton">Importieren</button>
+            <button id="exportButton">Export</button>
+            <button style="justify-content: flex-end;margin-left: auto;" id="importButton">Import</button>
         </div>
     </div>
 
-    <!-- Info Panel -->
     <div id="info">
         <strong>Ctrl + Click</strong>: Add object<br>
         <strong>Shift + Click</strong>: Remove object<br>
@@ -183,97 +216,153 @@
         <strong>g / r / s</strong>: Translate / Rotate / Scale
     </div>
 
-    <div id="costPanel">
-        <div id="costPanelHeader">Estimated costs</div>
-        <ul id="costList" style="list-style-type: none; padding-left: 5px; margin: 5px 0;"></ul>
-        <div id="totalCostContainer" style="border-top: 1px solid #ccc; padding-top: 5px;">
-            Total: <span id="totalCost">0</span> CHF
+    <div id="sidebarContainer">
+        <div id="costPanel" class="sidebarPanel">
+            <div id="costPanelHeader" class="sidebarPanelHeader">Estimated costs</div>
+            <ul id="costList"></ul>
+            <div id="totalCostContainer" style="border-top: 1px solid #ccc; padding-top: 5px;">
+                Total: <span id="totalCost">0</span> CHF
+            </div>
         </div>
+
+        <div id="emissionPanel" class="sidebarPanel">
+            <div id="emissionPanelHeader" class="sidebarPanelHeader">Production Emissions</div>
+            <div id="emissionsChartContainer">
+                <canvas id="emissionsChart"></canvas>
+            </div>
+        </div>
+
+        <div id="efficiencyPanel" class="sidebarPanel">
+            <div id="efficiencyPanelHeader" class="sidebarPanelHeader">Production Efficiency</div>
+            <div id="efficiencyChartContainer">
+                <canvas id="efficiencyChart"></canvas>
+            </div>
+        </div>
+
     </div>
 
-    <canvas></canvas>
+    <canvas id="sceneCanvas"></canvas>
 
     <script src="bundle.js"></script>
-    <script>    
-        function isCollidingRect(r1, r2) {
-          return !(r1.right <= r2.left ||
-                   r1.left >= r2.right ||
-                   r1.bottom <= r2.top ||
-                   r1.top >= r2.bottom);
-        }
-
+    <script>
         function makePanelDraggable(panelId, headerId) {
           const panel = document.getElementById(panelId);
           const header = document.getElementById(headerId);
-    
+
           if (!panel.style.left || panel.style.left === "") {
             const rect = panel.getBoundingClientRect();
             panel.style.left = rect.left + "px";
             panel.style.top  = rect.top + "px";
             panel.style.right = "";
           }
-    
-          let lastValidX = parseFloat(panel.style.left);
-          let lastValidY = parseFloat(panel.style.top);
+
           let offsetX = 0, offsetY = 0;
           let isDragging = false;
-    
+
           header.addEventListener('mousedown', (e) => {
             isDragging = true;
             offsetX = e.clientX - panel.offsetLeft;
             offsetY = e.clientY - panel.offsetTop;
           });
-    
+
           document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
             let newLeft = e.clientX - offsetX;
             let newTop = e.clientY - offsetY;
-    
+
             newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - panel.offsetWidth));
             newTop  = Math.max(0, Math.min(newTop, window.innerHeight - panel.offsetHeight));
-    
-            const newRect = {
-              left: newLeft,
-              top: newTop,
-              right: newLeft + panel.offsetWidth,
-              bottom: newTop + panel.offsetHeight
-            };
-    
-            let otherPanel = null;
-            if (panelId === "uiPanel") {
-              otherPanel = document.getElementById("costPanel");
-            } else if (panelId === "costPanel") {
-              otherPanel = document.getElementById("uiPanel");
-            }
-            if (otherPanel) {
-              const otherLeft = parseFloat(otherPanel.style.left);
-              const otherTop  = parseFloat(otherPanel.style.top);
-              const otherRect = {
-                left: otherLeft,
-                top: otherTop,
-                right: otherLeft + otherPanel.offsetWidth,
-                bottom: otherTop + otherPanel.offsetHeight
-              };
-              if (isCollidingRect(newRect, otherRect)) {
-                return;
-              }
-            }
-    
+
             panel.style.left = newLeft + "px";
             panel.style.top  = newTop + "px";
-            lastValidX = newLeft;
-            lastValidY = newTop;
           });
-    
+
           document.addEventListener('mouseup', () => {
             isDragging = false;
           });
         }
-    
+
         makePanelDraggable("uiPanel", "uiPanelHeader");
-        makePanelDraggable("costPanel", "costPanelHeader");
-     </script>
 
+        const emissionsCtx = document.getElementById('emissionsChart').getContext('2d');
+        new Chart(emissionsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+                datasets: [
+                    {
+                        label: 'Current Emissions (kg CO₂)',
+                        data: [350, 360, 330, 310],
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Planned Emissions (kg CO₂)',
+                        data: [210, 230, 160, 180],
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
+        new Chart(efficiencyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['10 pcs', '50 pcs', '100 pcs', '200 pcs'],
+                datasets: [
+                    {
+                        label: 'Before Optimization (pcs/hour)',
+                        data: [14.57, 16.57, 19.23, 21.0],
+                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'After Optimization (pcs/hour)',
+                        data: [4.5, 7.5, 10.0, 11.57],
+                        backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Production Throughput (pcs/hour)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Amount of Pieces'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
-
 </html>
