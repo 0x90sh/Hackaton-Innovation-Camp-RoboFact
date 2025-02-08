@@ -174,6 +174,14 @@
                 <input type="text" id="text" name="text" required>
             </div>
 
+            <div class="form-group">
+              <label for="text">Daten upload (Emissionen & Effizienz)</label>
+              <div style="display: flex; gap: 10px;">
+                <input type="file" id="efficiencyFile" name="efficiencyFile" accept=".csv,.xlsx,.xls">
+                <input type="file" id="emissionsFile" name="emissionsFile" accept=".csv,.xlsx,.xls">
+              </div>
+          </div>
+    
             <div id="steps">
                 <div id="steps-container">
                     <label for="automation-steps">Definieren Sie die Automationsschritte</label>
@@ -323,7 +331,7 @@
       }
     },
     {
-      "modelKey": "paketierer",
+      "modelKey": "palletierer",
       "position": {
         "x": -608.4642938115234,
         "y": 3,
@@ -401,6 +409,8 @@
                     if (messageIndex >= messages.length) {
                         clearInterval(intervalId);
                         buttonText.innerText = "View Result";
+                        showChatBtn.style.backgroundColor = "#28a745";
+                        showChatBtn.style.color = "#fff";
                         spinner.remove();
 
                         navigator.clipboard.writeText(jsonToCopy)

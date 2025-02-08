@@ -339,7 +339,11 @@ function updateCostList() {
     let total = 0;
     costList.innerHTML = '';
 
-    // Swiss German formatting for numbers
+    const objectsIgnoringPallette = objects.filter(obj =>
+        obj.userData && obj.userData.modelKey && obj.userData.modelKey !== 'pallete'
+    );
+    const placedCount = objectsIgnoringPallette.length;
+
     const formatter = new Intl.NumberFormat('de-CH', {
         style: 'decimal',
         minimumFractionDigits: 0,
@@ -351,11 +355,27 @@ function updateCostList() {
             const cost = obj.userData.cost || 0;
             total += cost;
             const li = document.createElement('li');
-            li.textContent = obj.userData.modelKey.replace(/_/g, " ") + ": " + formatter.format(cost) + " CHF";
+            li.textContent = obj.userData.modelKey.replace(/_/g, " ") + ": " 
+                            + formatter.format(cost) + " CHF";
             costList.appendChild(li);
         }
     });
     totalCostElem.textContent = formatter.format(total);
+
+    const plannedEmissionsNew = baselinePlannedEmissions.map(value => {
+        const updatedVal = value * (1 - 0.08 * placedCount);
+        return Math.max(75, updatedVal);
+      });
+      emissionsChart.data.datasets[1].data = plannedEmissionsNew;
+
+      const afterOptNew = baselineAfterOptimization.map(value => {
+        const updatedVal = value * (1 - 0.08 * placedCount);
+        return Math.max(1, updatedVal);
+      });
+      efficiencyChart.data.datasets[1].data = afterOptNew;
+
+    emissionsChart.update();
+    efficiencyChart.update();
 }
 
 function exportSceneToClipboard() {
@@ -427,7 +447,7 @@ function importSceneFromClipboard() {
                 return;
             }
         } else if (Array.isArray(importData)) {
-            modelsData = importData; // Legacy import for direct array
+            modelsData = importData;
         } else {
             alert("Invalid import format!");
             return;

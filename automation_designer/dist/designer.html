@@ -97,11 +97,11 @@
             width: 140px;
         }
 
-        /* Sidebar Container rechts, mit Abstand vom Rand */
         #sidebarContainer {
-            position: absolute; /* statt fixed */
+            position: absolute;
             top: 10px;
-            right: 30px;   /* Abstand zum rechten Fensterrand */
+            right: 30px; 
+            bottom: 10px;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -109,7 +109,6 @@
             width: 250px;
         }
 
-        /* Gleicher Stil für alle Panel in der Sidebar */
         .sidebarPanel {
             background: rgba(255, 255, 255, 0.85);
             padding: 10px;
@@ -127,7 +126,6 @@
             text-align: center;
         }
 
-        /* Damit die Kostenliste wachsen kann, ohne Layout zu sprengen */
         #costList {
             list-style-type: none;
             padding-left: 5px;
@@ -136,7 +134,6 @@
             overflow-y: auto;
         }
 
-        /* Info-Panel */
         #info {
             position: absolute;
             bottom: 10px;
@@ -149,7 +146,6 @@
             font-size: 0.9em;
         }
 
-        /* Chart-Container für Emissions */
         #emissionsChartContainer {
             width: 100%;
             height: 200px;
@@ -160,7 +156,6 @@
             height: 100% !important;
         }
 
-        /* Chart-Container für Efficiency */
         #efficiencyChartContainer {
             width: 100%;
             height: 200px;
@@ -284,85 +279,95 @@
 
         makePanelDraggable("uiPanel", "uiPanelHeader");
 
-        const emissionsCtx = document.getElementById('emissionsChart').getContext('2d');
-        new Chart(emissionsCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-                datasets: [
-                    {
-                        label: 'Current Emissions (kg CO₂)',
-                        data: [350, 360, 330, 310],
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderWidth: 2,
-                        pointRadius: 3,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Planned Emissions (kg CO₂)',
-                        data: [210, 230, 160, 180],
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderWidth: 2,
-                        pointRadius: 3,
-                        tension: 0.3
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+        
+const baselinePlannedEmissions = [350, 360, 330, 310];
 
-        const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
-        new Chart(efficiencyCtx, {
-            type: 'bar',
-            data: {
-                labels: ['10 pcs', '50 pcs', '100 pcs', '200 pcs'],
-                datasets: [
-                    {
-                        label: 'Before Optimization (pcs/hour)',
-                        data: [14.57, 16.57, 19.23, 21.0],
-                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
-                        borderColor: 'rgba(255, 159, 64, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'After Optimization (pcs/hour)',
-                        data: [4.5, 7.5, 10.0, 11.57],
-                        backgroundColor: 'rgba(153, 102, 255, 0.6)',
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        borderWidth: 1
-                    }
-                ]
+const baselineAfterOptimization = [14.57, 16.57, 19.23, 21.0];
+
+let emissionsChart, efficiencyChart;
+
+const emissionsCtx = document.getElementById('emissionsChart').getContext('2d');
+emissionsChart = new Chart(emissionsCtx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+        datasets: [
+            {
+                label: 'Current Emissions (kg CO₂)',
+                data: [350, 360, 330, 310],        // bleibt unverändert
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderWidth: 2,
+                pointRadius: 3,
+                tension: 0.3
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Production Throughput (pcs/hour)'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Amount of Pieces'
-                        }
-                    }
+            {
+                label: 'Planned Emissions (kg CO₂)',
+                // Starte mit den Baseline-Werten
+                data: [...baselinePlannedEmissions],
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderWidth: 2,
+                pointRadius: 3,
+                tension: 0.3
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
+efficiencyChart = new Chart(efficiencyCtx, {
+    type: 'bar',
+    data: {
+        labels: ['10 pcs', '50 pcs', '100 pcs', '200 pcs'],
+        datasets: [
+            {
+                label: 'Before Optimization (pcs/hour)',
+                data: [14.57, 16.57, 19.23, 21.0],
+                backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                borderColor: 'rgba(255, 159, 64, 1)',
+                borderWidth: 1
+            },
+            {
+                label: 'After Optimization (pcs/hour)',
+                data: [...baselineAfterOptimization],
+                backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Production Throughput (pcs/hour)'
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Amount of Pieces'
                 }
             }
-        });
+        }
+    }
+});
+
+
+
     </script>
 </body>
 </html>
